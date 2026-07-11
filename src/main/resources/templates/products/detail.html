@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title th:text="${product.title}">상품</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <a class="back-link" th:href="@{/products}">상품 목록</a>
+    <section class="detail-layout">
+        <div class="detail-media">
+            <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 대표 이미지">
+            <div class="placeholder large" th:if="${product.images.isEmpty()}">등록된 이미지가 없습니다</div>
+            <div class="image-strip" th:if="${product.images.size() > 1}">
+                <img th:each="image : ${product.images}" th:src="${image.url}" alt="상품 이미지">
+            </div>
+        </div>
+        <article class="detail-panel">
+            <p class="badge" th:text="${product.status}"></p>
+            <h1 th:text="${product.title}"></h1>
+            <p class="detail-price"><strong th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')}"></strong> CarrotCoin</p>
+            <p class="description" th:text="${product.description}"></p>
+            <dl class="info-grid">
+                <div><dt>카테고리</dt><dd th:text="${product.category}"></dd></div>
+                <div><dt>지역</dt><dd th:text="${product.region}"></dd></div>
+                <div><dt>판매자</dt><dd th:text="${product.seller.nickname}"></dd></div>
+                <div><dt>조회수</dt><dd th:text="${product.viewCount}"></dd></div>
+            </dl>
+            <div class="actions" sec:authorize="isAuthenticated()">
+                <form th:action="@{/products/{id}/favorite(id=${product.id})}" method="post"><button class="secondary" type="submit">관심</button></form>
+                <form th:action="@{/chat}" method="post"><input type="hidden" name="productId" th:value="${product.id}"><button class="secondary" type="submit">문의</button></form>
+                <form th:action="@{/wallet/transfers}" method="post" onsubmit="return confirm('CarrotCoin으로 구매할까요?')">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}">
+                    <button type="submit">CarrotCoin 구매</button>
+                </form>
+                <a class="button ghost" th:href="@{/reports/new(targetType='PRODUCT',targetId=${product.id})}">신고</a>
+                <a class="button ghost" th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
+                <form th:action="@{/products/{id}/delete(id=${product.id})}" method="post" onsubmit="return confirm('삭제할까요?')"><button class="danger" type="submit">삭제</button></form>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>

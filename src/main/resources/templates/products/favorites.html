@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>관심 상품</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><h1>관심 상품</h1><article class="card" th:each="favorite : ${favorites}"><a th:href="@{/products/{id}(id=${favorite.product.id})}" th:text="${favorite.product.title}"></a></article></main></body>
+</html>

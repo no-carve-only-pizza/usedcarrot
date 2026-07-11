@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>관리자</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><h1>관리자 대시보드</h1><nav><a th:href="@{/admin/users}">사용자</a> <a th:href="@{/admin/products}">상품</a> <a th:href="@{/admin/reports}">신고</a> <a th:href="@{/admin/audit-logs}">감사 로그</a></nav><p>사용자 <span th:text="${userCount}"></span> / 활성 <span th:text="${activeUserCount}"></span></p><p>상품 <span th:text="${productCount}"></span> / 숨김 <span th:text="${hiddenProductCount}"></span></p><p>미처리 신고 <span th:text="${pendingReportCount}"></span></p></main></body>
+</html>

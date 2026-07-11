@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>상품 폼</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <a class="back-link" th:href="@{/products}">상품 목록</a>
+    <section class="form-shell">
+        <div>
+            <p class="eyebrow">Sell safely</p>
+            <h1>상품 등록/수정</h1>
+            <p>사진은 최대 5장, jpg/png/webp만 업로드할 수 있습니다.</p>
+        </div>
+    <form class="product-form" th:action="${product != null} ? @{/products/{id}/edit(id=${product.id})} : @{/products}" method="post" enctype="multipart/form-data">
+        <label>상품명 <input name="title" th:value="${productUpdateRequest != null ? productUpdateRequest.title : productCreateRequest.title}" maxlength="80" placeholder="예: 거의 새 아이패드 미니" required></label>
+        <div class="form-row">
+            <label>가격 <input name="price" th:value="${productUpdateRequest != null ? productUpdateRequest.price : productCreateRequest.price}" type="number" min="0" max="100000000" required></label>
+            <label>카테고리 <input name="category" th:value="${productUpdateRequest != null ? productUpdateRequest.category : productCreateRequest.category}" maxlength="50" placeholder="ELECTRONICS" required></label>
+        </div>
+        <label>지역 <input name="region" th:value="${productUpdateRequest != null ? productUpdateRequest.region : productCreateRequest.region}" maxlength="50" placeholder="서울 강남구" required></label>
+        <label>설명 <textarea name="description" maxlength="2000" placeholder="상태, 사용 기간, 거래 희망 장소를 적어주세요." required th:text="${productUpdateRequest != null ? productUpdateRequest.description : productCreateRequest.description}"></textarea></label>
+        <label th:if="${productUpdateRequest != null}">상태
+            <select name="status"><option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${productUpdateRequest.status == s}"></option></select>
+        </label>
+        <label class="upload-box" th:if="${product == null}">이미지 업로드
+            <input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp">
+            <span>클릭해서 사진을 선택하세요. 이미지가 없으면 기본 빈 이미지 카드가 표시됩니다.</span>
+        </label>
+        <button type="submit">저장하기</button>
+    </form>
+    </section>
+</main>
+</body>
+</html>

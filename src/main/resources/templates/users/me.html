@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>마이페이지</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<main class="container">
+    <p><a th:href="@{/}">홈</a></p>
+    <h1>마이페이지</h1>
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <dl>
+        <dt>이메일</dt><dd th:text="${user.email}"></dd>
+        <dt>상태</dt><dd th:text="${user.status}"></dd>
+        <dt>가입일</dt><dd th:text="${user.createdAt}"></dd>
+    </dl>
+    <h2>프로필 수정</h2>
+    <form th:action="@{/users/me/profile}" th:object="${profileUpdateRequest}" method="post">
+        <label>닉네임 <input th:field="*{nickname}" required maxlength="20"></label>
+        <label>지역 <input th:field="*{region}" required maxlength="50"></label>
+        <label>소개글 <textarea th:field="*{bio}" maxlength="200"></textarea></label>
+        <button type="submit">저장</button>
+    </form>
+    <h2>비밀번호 변경</h2>
+    <form th:action="@{/users/me/password}" th:object="${passwordChangeRequest}" method="post">
+        <label>현재 비밀번호 <input th:field="*{currentPassword}" type="password" required></label>
+        <label>새 비밀번호 <input th:field="*{newPassword}" type="password" required minlength="8"></label>
+        <label>새 비밀번호 확인 <input th:field="*{newPasswordConfirm}" type="password" required minlength="8"></label>
+        <button type="submit">변경</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>거래 내역</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<main class="container" th:fragment="txList">
+    <h1>거래 내역</h1>
+    <table>
+        <tr><th>유형</th><th>상태</th><th>금액</th><th>해시</th><th>상품</th></tr>
+        <tr th:each="tx : ${transactions}">
+            <td th:text="${tx.type}"></td>
+            <td th:text="${tx.status}"></td>
+            <td th:text="${#numbers.formatInteger(tx.amount, 0, 'COMMA')}"></td>
+            <td th:text="${tx.transactionHash}"></td>
+            <td th:text="${tx.product != null ? tx.product.title : '-'}"></td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>

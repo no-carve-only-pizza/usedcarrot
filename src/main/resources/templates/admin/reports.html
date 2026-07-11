@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>신고 관리</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><h1>신고 관리</h1><table><tr><th>ID</th><th>대상</th><th>사유</th><th>상태</th><th>상세</th><th>처리</th></tr><tr th:each="report : ${reports}"><td th:text="${report.id}"></td><td th:text="${report.targetType + ':' + report.targetId}"></td><td th:text="${report.reason}"></td><td th:text="${report.status}"></td><td th:text="${report.detail}"></td><td><form th:action="@{/admin/reports/{id}/process(id=${report.id})}" method="post"><select name="status"><option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option></select><input name="memo" maxlength="1000"><button>처리</button></form></td></tr></table></main></body>
+</html>

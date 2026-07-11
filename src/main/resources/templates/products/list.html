@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>상품 목록</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <section class="page-title">
+        <p class="eyebrow">Market</p>
+        <h1>상품 목록</h1>
+        <p>키워드와 카테고리로 동네 상품을 찾아보세요.</p>
+    </section>
+    <form th:action="@{/products}" method="get" class="filters">
+        <input name="keyword" maxlength="50" th:value="${condition != null ? condition.keyword : ''}" placeholder="검색어">
+        <input name="category" maxlength="50" th:value="${condition != null ? condition.category : ''}" placeholder="카테고리">
+        <button type="submit">검색</button>
+    </form>
+    <section class="product-grid" th:if="${page != null}">
+        <article class="product-card" th:each="product : ${page.content}">
+            <a th:href="@{/products/{id}(id=${product.id})}">
+                <div class="thumb">
+                    <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 이미지">
+                    <div class="placeholder" th:if="${product.images.isEmpty()}">이미지 준비중</div>
+                </div>
+                <div class="product-body">
+                    <h3 th:text="${product.title}"></h3>
+                    <p class="price"><span th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')}"></span> CC</p>
+                    <p class="meta"><span th:text="${product.region}"></span><span th:text="${product.status}"></span></p>
+                </div>
+            </a>
+        </article>
+    </section>
+    <section class="product-grid" th:if="${products != null}">
+        <article class="product-card" th:each="product : ${products}">
+            <a th:href="@{/products/{id}(id=${product.id})}">
+                <div class="thumb">
+                    <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 이미지">
+                    <div class="placeholder" th:if="${product.images.isEmpty()}">이미지 준비중</div>
+                </div>
+                <div class="product-body">
+                    <h3 th:text="${product.title}"></h3>
+                    <p class="meta"><span th:text="${product.status}"></span></p>
+                </div>
+            </a>
+        </article>
+    </section>
+</main>
+</body>
+</html>

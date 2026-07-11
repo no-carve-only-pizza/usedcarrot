@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>채팅</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><p><a th:href="@{/}">홈</a></p><h1>채팅</h1><article class="card" th:each="room : ${rooms}"><a th:href="@{/chat/{id}(id=${room.id})}"><strong th:text="${room.product.title}"></strong><span th:text="${room.seller.nickname}"></span></a></article></main></body>
+</html>

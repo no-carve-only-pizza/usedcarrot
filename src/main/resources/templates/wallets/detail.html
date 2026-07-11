@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>지갑</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><p><a th:href="@{/}">홈</a></p><h1>CarrotCoin 지갑</h1><p><strong th:text="${#numbers.formatInteger(wallet.balance, 0, 'COMMA')}"></strong> CC</p><div th:replace="~{wallets/transactions :: txList}"></div></main></body>
+</html>

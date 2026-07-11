@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>채팅방</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<main class="container">
+    <p><a th:href="@{/chat}">채팅 목록</a></p>
+    <h1 th:text="${room.product.title}"></h1>
+    <section class="messages">
+        <div th:each="message : ${messages}" class="message">
+            <strong th:text="${message.sender.nickname}"></strong>
+            <span th:text="${message.content}"></span>
+            <time th:text="${message.createdAt}"></time>
+        </div>
+    </section>
+    <form th:action="@{/chat/{id}/messages(id=${room.id})}" th:object="${messageCreateRequest}" method="post">
+        <textarea th:field="*{content}" maxlength="1000" required></textarea>
+        <button type="submit">전송</button>
+    </form>
+    <form th:action="@{/wallet/transfers}" method="post">
+        <input type="hidden" name="productId" th:value="${room.product.id}">
+        <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}">
+        <button type="submit">CarrotCoin 구매</button>
+    </form>
+</main>
+</body>
+</html>

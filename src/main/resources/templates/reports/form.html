@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>신고</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<main class="container">
+    <h1>신고</h1>
+    <form th:action="@{/reports}" th:object="${reportCreateRequest}" method="post">
+        <input type="hidden" th:field="*{targetType}">
+        <input type="hidden" th:field="*{targetId}">
+        <label>사유 <select th:field="*{reason}"><option th:each="r : ${reasons}" th:value="${r}" th:text="${r}"></option></select></label>
+        <label>상세 <textarea th:field="*{detail}" maxlength="1000"></textarea></label>
+        <button type="submit">신고 접수</button>
+    </form>
+</main>
+</body>
+</html>
