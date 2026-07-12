@@ -47,7 +47,7 @@ public class AuthService {
             request.getRegion(),
             UserRole.ROLE_USER
         ));
-        walletService.createInitialWallet(user, servletRequest);
+        walletService.createWallet(user, servletRequest);
         auditLogger.log(user.getId(), AuditEventType.REGISTER, "SUCCESS", "user registered", servletRequest);
     }
 }

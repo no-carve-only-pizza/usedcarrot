@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ReportRepository extends JpaRepository<Report, Long> {
     boolean existsByReporterIdAndTargetTypeAndTargetIdAndCreatedAtAfter(Long reporterId, ReportTargetType targetType, Long targetId, LocalDateTime after);
     long countByTargetTypeAndTargetId(ReportTargetType targetType, Long targetId);
+    long countByTargetTypeAndTargetIdAndStatus(ReportTargetType targetType, Long targetId, ReportStatus status);
     long countByStatus(ReportStatus status);
     List<Report> findByOrderByCreatedAtDesc();
 }

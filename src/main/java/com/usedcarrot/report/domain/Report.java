@@ -71,6 +71,10 @@ public class Report extends BaseTimeEntity {
         this.handledAt = LocalDateTime.now();
     }
 
+    public boolean isProcessed() {
+        return handledAt != null;
+    }
+
     public Long getId() {
         return id;
     }

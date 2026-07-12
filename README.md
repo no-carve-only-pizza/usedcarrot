@@ -28,15 +28,21 @@ UsedCarrot은 Spring Boot 3, Java 21, Thymeleaf, Spring Security, JPA, H2 기반
 
 ## CarrotCoin 안내
 
-CarrotCoin은 실제 가상자산 결제 서비스가 아니라 DB 기반 모의지갑 시스템입니다. 실제 블록체인, 개인키, 지갑 주소, 외부 결제 API는 사용하지 않습니다. 회원가입 시 1,000,000 CarrotCoin이 지급되고, 상품 구매 시 서버에 저장된 상품 가격으로 구매자 지갑 차감과 판매자 지갑 증가가 하나의 DB 트랜잭션에서 처리됩니다.
+CarrotCoin은 실제 가상자산 결제 서비스가 아니라 DB 기반 모의지갑 시스템입니다. 실제 블록체인, 개인키, 지갑 주소, 외부 결제 API는 사용하지 않습니다. 신규 지갑은 0 CC로 생성되며 관리자가 필요한 금액을 지급합니다. 상품 구매 시 서버에 저장된 상품 가격으로 구매자 지갑 차감과 판매자 지갑 증가가 하나의 DB 트랜잭션에서 처리됩니다.
 
 ## 실행 방법
 
 Java 21이 필요합니다.
 
+로컬 실행에서는 관리자 정보를 환경변수로 지정하고 `local` 프로필을 사용합니다. 비밀번호는 12자 이상이어야 합니다.
+
 ```bash
-./gradlew bootRun
+export USEDCARROT_ADMIN_EMAIL='admin@example.com'
+export USEDCARROT_ADMIN_PASSWORD='change-this-to-a-strong-password'
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
+
+운영 환경에서는 `local` 프로필을 사용하지 말고 HTTPS에서 실행합니다. 기본 설정은 세션 쿠키에 `Secure`, `HttpOnly`, `SameSite=Strict`를 적용합니다.
 
 접속 URL:
 
@@ -55,11 +61,8 @@ H2 기본 설정:
 ./gradlew test
 ```
 
-현재 테스트는 Spring 컨텍스트 로딩, 회원가입 시 지갑 자동 생성, CarrotCoin 구매 잔액 변경과 본인 상품 구매 차단을 확인합니다.
+현재 테스트는 기본 계정 미생성, 0 CC 지갑 생성, 관리자 CC 지급, CarrotCoin 구매, 신고 관리자 승인, 로그인 IP 제한, 프록시 IP 위조 방어와 상품 경로 인증을 확인합니다.
 
-## 기본 계정
+## 계정과 CC 지급
 
-애플리케이션 시작 시 테스트 계정이 자동 생성됩니다.
-
-- 관리자: `admin@usedcarrot.test` / `Admin123!`
-- 일반 사용자: `user@usedcarrot.test` / `User1234!`
+소스에 포함된 기본 계정은 없습니다. 관리자는 위 환경변수로 최초 1회 생성하며 일반 사용자는 회원가입합니다. 관리자는 사용자 관리 화면에서 사용자별로 최대 1,000,000 CC를 지급할 수 있습니다.

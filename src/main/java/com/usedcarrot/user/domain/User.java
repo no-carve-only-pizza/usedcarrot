@@ -66,8 +66,7 @@ public class User extends BaseTimeEntity {
     }
 
     public boolean isLoginAllowed() {
-        return status != UserStatus.SUSPENDED && status != UserStatus.DELETED
-            && (lockedUntil == null || lockedUntil.isBefore(LocalDateTime.now()));
+        return status != UserStatus.SUSPENDED && status != UserStatus.DELETED;
     }
 
     public void updateProfile(String nickname, String region, String bio) {
@@ -91,9 +90,6 @@ public class User extends BaseTimeEntity {
 
     public void loginFailed() {
         this.loginFailCount++;
-        if (this.loginFailCount >= 5) {
-            this.lockedUntil = LocalDateTime.now().plusMinutes(5);
-        }
     }
 
     public Long getId() {

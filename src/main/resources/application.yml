@@ -23,12 +23,25 @@ spring:
       max-request-size: 25MB
 
 server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${SESSION_COOKIE_SECURE:true}
+        same-site: strict
   error:
     include-message: never
     include-stacktrace: never
 
 usedcarrot:
   upload-dir: ./uploads
+  bootstrap-admin:
+    email: ${USEDCARROT_ADMIN_EMAIL:}
+    password: ${USEDCARROT_ADMIN_PASSWORD:}
+  trusted-proxies: ${USEDCARROT_TRUSTED_PROXIES:}
+  login-rate-limit:
+    max-failures: 10
+    window-seconds: 60
 
 logging:
   level:

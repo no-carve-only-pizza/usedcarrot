@@ -2,6 +2,9 @@ package com.usedcarrot.config;
 
 import com.usedcarrot.audit.domain.AuditEventType;
 import com.usedcarrot.common.AuditLogger;
+import com.usedcarrot.security.ClientIpResolver;
+import com.usedcarrot.security.LoginRateLimitFilter;
+import com.usedcarrot.security.LoginRateLimitService;
 import com.usedcarrot.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
@@ -18,16 +21,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationSuccessHandler successHandler,
-                                            AuthenticationFailureHandler failureHandler, AuditLogger auditLogger) throws Exception {
+                                            AuthenticationFailureHandler failureHandler, AuditLogger auditLogger,
+                                            LoginRateLimitService rateLimitService, ClientIpResolver clientIpResolver) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/error", "/products", "/products/*", "/login", "/register", "/css/**", "/uploads/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/products/new", "/products/me").authenticated()
+                .requestMatchers(HttpMethod.GET, "/", "/products", "/products/{id}", "/css/**", "/uploads/**").permitAll()
+                .requestMatchers("/error", "/login", "/register").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/reports/new").authenticated()
                 .anyRequest().authenticated()
@@ -40,6 +47,7 @@ public class SecurityConfig {
                 .failureHandler(failureHandler)
                 .permitAll()
             )
+            .addFilterBefore(new LoginRateLimitFilter(rateLimitService, clientIpResolver), UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessHandler((request, response, authentication) -> {
@@ -51,13 +59,18 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
             )
             .sessionManagement(session -> session.sessionFixation().migrateSession())
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.deny())
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    "default-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")));
         return http.build();
     }
 
     @Bean
-    AuthenticationSuccessHandler successHandler(UserRepository userRepository, AuditLogger auditLogger) {
+    AuthenticationSuccessHandler successHandler(UserRepository userRepository, AuditLogger auditLogger,
+                                                 LoginRateLimitService rateLimitService, ClientIpResolver clientIpResolver) {
         return (request, response, authentication) -> {
+            rateLimitService.clear(clientIpResolver.resolve(request));
             userRepository.findByEmail(authentication.getName()).ifPresent(user -> {
                 user.loginSucceeded();
                 userRepository.save(user);
@@ -68,9 +81,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationFailureHandler failureHandler(UserRepository userRepository, AuditLogger auditLogger) {
+    AuthenticationFailureHandler failureHandler(UserRepository userRepository, AuditLogger auditLogger,
+                                                 LoginRateLimitService rateLimitService, ClientIpResolver clientIpResolver) {
         return (HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response,
                 AuthenticationException exception) -> {
+            rateLimitService.recordFailure(clientIpResolver.resolve(request));
             String email = request.getParameter("email");
             userRepository.findByEmail(email).ifPresent(user -> {
                 user.loginFailed();

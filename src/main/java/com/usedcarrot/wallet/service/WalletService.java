@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WalletService {
-    private static final long INITIAL_BALANCE = 1_000_000L;
+    private static final long MAX_ADMIN_GRANT = 1_000_000L;
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository transactionRepository;
     private final AuditLogger auditLogger;
@@ -46,14 +46,26 @@ public class WalletService {
     }
 
     @Transactional
-    public Wallet createInitialWallet(User user, HttpServletRequest request) {
-        Wallet wallet = walletRepository.save(new Wallet(user, INITIAL_BALANCE));
-        transactionRepository.save(new WalletTransaction(null, user, null, null, wallet, INITIAL_BALANCE,
-            WalletTransactionType.INITIAL_GRANT, WalletTransactionStatus.COMPLETED, UUID.randomUUID().toString(),
-            "initial-" + user.getEmail(), null));
+    public Wallet createWallet(User user, HttpServletRequest request) {
+        Wallet wallet = walletRepository.save(new Wallet(user, 0L));
         auditLogger.log(user.getId(), AuditEventType.WALLET_CREATED, "SUCCESS", "wallet created", request);
-        auditLogger.log(user.getId(), AuditEventType.WALLET_INITIAL_GRANTED, "SUCCESS", "initial grant", request);
         return wallet;
+    }
+
+    @Transactional
+    public void adminGrant(Long userId, long amount, CurrentUser admin, HttpServletRequest request) {
+        if (amount <= 0 || amount > MAX_ADMIN_GRANT) {
+            throw new AppException(ErrorCode.BAD_REQUEST, "지급액은 1~1,000,000 CC여야 합니다.");
+        }
+        User target = userService.findById(userId);
+        Wallet wallet = walletRepository.findWithLockByUserId(userId)
+            .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "지갑을 찾을 수 없습니다."));
+        wallet.deposit(amount);
+        transactionRepository.save(new WalletTransaction(null, null, target, null, wallet, amount,
+            WalletTransactionType.ADMIN_ADJUSTMENT, WalletTransactionStatus.COMPLETED, UUID.randomUUID().toString(),
+            "admin-grant-" + UUID.randomUUID(), null));
+        auditLogger.log(admin.getId(), AuditEventType.WALLET_ADMIN_GRANTED, "SUCCESS",
+            "targetUserId=" + userId + ",amount=" + amount, request);
     }
 
     @Transactional(readOnly = true)

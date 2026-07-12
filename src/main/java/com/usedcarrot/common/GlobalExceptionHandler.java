@@ -1,5 +1,6 @@
 package com.usedcarrot.common;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
@@ -10,10 +11,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(AppException.class)
-    public String appException(AppException e, Model model) {
+    public String appException(AppException e, Model model, HttpServletResponse response) {
+        response.setStatus(statusFor(e.getErrorCode()).value());
         model.addAttribute("message", e.getMessage());
         model.addAttribute("code", e.getErrorCode().name());
         return "error/error";
+    }
+
+    private HttpStatus statusFor(ErrorCode errorCode) {
+        return switch (errorCode) {
+            case BAD_REQUEST, FILE_UPLOAD_REJECTED -> HttpStatus.BAD_REQUEST;
+            case ACCESS_DENIED -> HttpStatus.FORBIDDEN;
+            case NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case DUPLICATE_RESOURCE, INVALID_STATE -> HttpStatus.CONFLICT;
+        };
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)

@@ -46,29 +46,22 @@ public class ReportService {
             request.getTargetId(), LocalDateTime.now().minusHours(24))) {
             throw new AppException(ErrorCode.DUPLICATE_RESOURCE, "24시간 내 같은 대상을 다시 신고할 수 없습니다.");
         }
-        validateAndApplyTargetPolicy(reporter, request);
+        validateTarget(reporter, request);
         Report report = reportRepository.save(new Report(reporter, request.getTargetType(), request.getTargetId(), request.getReason(), request.getDetail()));
         auditLogger.log(reporter.getId(), AuditEventType.REPORT_CREATED, "SUCCESS", "reportId=" + report.getId(), servletRequest);
     }
 
-    private void validateAndApplyTargetPolicy(User reporter, ReportCreateRequest request) {
+    private void validateTarget(User reporter, ReportCreateRequest request) {
         if (request.getTargetType() == ReportTargetType.PRODUCT) {
             Product product = productService.find(request.getTargetId());
             if (product.isSeller(reporter.getId())) {
                 throw new AppException(ErrorCode.BAD_REQUEST, "본인 상품은 신고할 수 없습니다.");
             }
-            product.increaseReportCount();
             return;
         }
         User target = userService.findById(request.getTargetId());
         if (target.getId().equals(reporter.getId())) {
             throw new AppException(ErrorCode.BAD_REQUEST, "자기 자신은 신고할 수 없습니다.");
-        }
-        long count = reportRepository.countByTargetTypeAndTargetId(ReportTargetType.USER, target.getId()) + 1;
-        if (count >= 10) {
-            target.changeStatus(UserStatus.SUSPENDED);
-        } else if (count >= 5) {
-            target.changeStatus(UserStatus.LIMITED);
         }
     }
 
@@ -79,9 +72,33 @@ public class ReportService {
 
     @Transactional
     public void process(Long reportId, ReportStatus status, String memo, CurrentUser admin, HttpServletRequest servletRequest) {
+        if (status != ReportStatus.RESOLVED && status != ReportStatus.REJECTED) {
+            throw new AppException(ErrorCode.BAD_REQUEST, "신고는 승인 또는 반려로 처리해야 합니다.");
+        }
         Report report = reportRepository.findById(reportId)
             .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "신고를 찾을 수 없습니다."));
+        if (report.isProcessed()) {
+            throw new AppException(ErrorCode.INVALID_STATE, "이미 처리된 신고입니다.");
+        }
         report.process(status, memo, userService.findById(admin.getId()));
+        if (status == ReportStatus.RESOLVED) {
+            applyApprovedReport(report);
+        }
         auditLogger.log(admin.getId(), AuditEventType.REPORT_PROCESSED, "SUCCESS", "reportId=" + reportId + ",status=" + status, servletRequest);
+    }
+
+    private void applyApprovedReport(Report report) {
+        if (report.getTargetType() == ReportTargetType.PRODUCT) {
+            productService.find(report.getTargetId()).increaseReportCount();
+            return;
+        }
+        User target = userService.findById(report.getTargetId());
+        long count = reportRepository.countByTargetTypeAndTargetIdAndStatus(
+            ReportTargetType.USER, target.getId(), ReportStatus.RESOLVED);
+        if (count >= 10) {
+            target.changeStatus(UserStatus.SUSPENDED);
+        } else if (count >= 5) {
+            target.changeStatus(UserStatus.LIMITED);
+        }
     }
 }
