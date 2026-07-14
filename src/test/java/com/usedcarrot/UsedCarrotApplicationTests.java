@@ -13,6 +13,7 @@ import com.usedcarrot.product.domain.ProductStatus;
 import com.usedcarrot.product.dto.ProductCreateRequest;
 import com.usedcarrot.product.dto.ProductUpdateRequest;
 import com.usedcarrot.product.service.ProductService;
+import com.usedcarrot.product.service.FileStorageService;
 import com.usedcarrot.report.domain.ReportReason;
 import com.usedcarrot.report.domain.ReportStatus;
 import com.usedcarrot.report.domain.ReportTargetType;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -54,6 +56,9 @@ class UsedCarrotApplicationTests {
 
     @Autowired
     ProductService productService;
+
+    @Autowired
+    FileStorageService fileStorageService;
 
     @Autowired
     WalletService walletService;
@@ -192,6 +197,18 @@ class UsedCarrotApplicationTests {
             .andExpect(status().is3xxRedirection());
         mockMvc.perform(get("/products/999999"))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void fileUploadRejectsPngSignatureWithoutDecodableImageData() {
+        byte[] fakePng = new byte[] {
+            (byte) 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+            0x00, 0x00, 0x00, 0x00, 0x49, 0x48, 0x44, 0x52
+        };
+        MockMultipartFile file = new MockMultipartFile("images", "fake.png", "image/png", fakePng);
+
+        assertThatThrownBy(() -> fileStorageService.store(java.util.List.of(file), 1L, new MockHttpServletRequest()))
+            .isInstanceOf(AppException.class);
     }
 
     private void register(String email, String nickname) {

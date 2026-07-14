@@ -8,6 +8,8 @@ import com.usedcarrot.product.domain.ProductImage;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileStorageService {
     private static final long MAX_SIZE = 5 * 1024 * 1024L;
+    private static final long MAX_PIXELS = 20_000_000L;
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
     private static final Set<String> ALLOWED_MIME = Set.of("image/jpeg", "image/png", "image/webp");
     private final Path uploadDir;
@@ -46,13 +49,15 @@ public class FileStorageService {
         String original = file.getOriginalFilename() == null ? "image" : Path.of(file.getOriginalFilename()).getFileName().toString();
         String extension = extension(original);
         String mime = file.getContentType();
-        if (!ALLOWED_EXTENSIONS.contains(extension) || !ALLOWED_MIME.contains(mime) || file.getSize() > MAX_SIZE) {
+        if (!ALLOWED_EXTENSIONS.contains(extension) || !ALLOWED_MIME.contains(mime) || !expectedMime(extension).equals(mime)
+            || file.getSize() > MAX_SIZE) {
             reject(userId, "invalid image upload", request);
         }
         try (InputStream inputStream = file.getInputStream()) {
             if (!hasValidSignature(inputStream, extension)) {
                 reject(userId, "invalid image signature", request);
             }
+            validateDecodableImage(file, extension, userId, request);
             Files.createDirectories(uploadDir);
             String stored = UUID.randomUUID() + "." + extension;
             Path target = uploadDir.resolve(stored).normalize();
@@ -67,14 +72,15 @@ public class FileStorageService {
     }
 
     private boolean hasValidSignature(InputStream inputStream, String extension) throws IOException {
-        byte[] bytes = inputStream.readNBytes(12);
+        byte[] bytes = inputStream.readNBytes(16);
         if (bytes.length < 4) {
             return false;
         }
         boolean jpg = (bytes[0] & 0xff) == 0xff && (bytes[1] & 0xff) == 0xd8;
         boolean png = bytes[0] == (byte) 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4e && bytes[3] == 0x47;
-        boolean webp = bytes.length >= 12 && bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
-            && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P';
+        boolean webp = bytes.length >= 16 && bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
+            && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P'
+            && ((bytes[12] == 'V' && bytes[13] == 'P' && bytes[14] == '8') || (bytes[12] == 'V' && bytes[13] == 'P' && bytes[14] == '8' && bytes[15] == 'X'));
         return switch (extension) {
             case "jpg", "jpeg" -> jpg;
             case "png" -> png;
@@ -86,6 +92,30 @@ public class FileStorageService {
     private String extension(String original) {
         int dot = original.lastIndexOf('.');
         return dot < 0 ? "" : original.substring(dot + 1).toLowerCase(Locale.ROOT);
+    }
+
+    private String expectedMime(String extension) {
+        return switch (extension) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "webp" -> "image/webp";
+            default -> "";
+        };
+    }
+
+    private void validateDecodableImage(MultipartFile file, String extension, Long userId, HttpServletRequest request) {
+        if ("webp".equals(extension)) {
+            return;
+        }
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0
+                || (long) image.getWidth() * image.getHeight() > MAX_PIXELS) {
+                reject(userId, "invalid image structure", request);
+            }
+        } catch (IOException e) {
+            reject(userId, "invalid image structure", request);
+        }
     }
 
     private void reject(Long userId, String detail, HttpServletRequest request) {

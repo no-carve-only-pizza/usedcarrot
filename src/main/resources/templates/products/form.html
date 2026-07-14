@@ -11,14 +11,20 @@
             <h1>상품 등록/수정</h1>
             <p>사진은 최대 5장, jpg/png/webp만 업로드할 수 있습니다.</p>
         </div>
-    <form class="product-form" th:action="${product != null} ? @{/products/{id}/edit(id=${product.id})} : @{/products}" method="post" enctype="multipart/form-data">
-        <label>상품명 <input name="title" th:value="${productUpdateRequest != null ? productUpdateRequest.title : productCreateRequest.title}" maxlength="80" placeholder="예: 거의 새 아이패드 미니" required></label>
+    <form class="product-form" th:action="${product != null} ? @{/products/{id}/edit(id=${product.id})} : @{/products}" th:object="${productUpdateRequest != null ? productUpdateRequest : productCreateRequest}" method="post" enctype="multipart/form-data">
+        <p class="error" th:if="${formError}" th:text="${formError}"></p>
+        <label>상품명 <input th:field="*{title}" minlength="2" maxlength="80" placeholder="예: 거의 새 아이패드 미니" required></label>
+        <p class="error" th:errors="*{title}"></p>
         <div class="form-row">
-            <label>가격 <input name="price" th:value="${productUpdateRequest != null ? productUpdateRequest.price : productCreateRequest.price}" type="number" min="0" max="100000000" required></label>
-            <label>카테고리 <input name="category" th:value="${productUpdateRequest != null ? productUpdateRequest.category : productCreateRequest.category}" maxlength="50" placeholder="ELECTRONICS" required></label>
+            <label>가격 <input th:field="*{price}" type="number" min="0" max="100000000" required></label>
+            <label>카테고리 <input th:field="*{category}" maxlength="50" placeholder="ELECTRONICS" required></label>
         </div>
-        <label>지역 <input name="region" th:value="${productUpdateRequest != null ? productUpdateRequest.region : productCreateRequest.region}" maxlength="50" placeholder="서울 강남구" required></label>
-        <label>설명 <textarea name="description" maxlength="2000" placeholder="상태, 사용 기간, 거래 희망 장소를 적어주세요." required th:text="${productUpdateRequest != null ? productUpdateRequest.description : productCreateRequest.description}"></textarea></label>
+        <p class="error" th:errors="*{price}"></p>
+        <p class="error" th:errors="*{category}"></p>
+        <label>지역 <input th:field="*{region}" minlength="2" maxlength="50" placeholder="서울 강남구" required></label>
+        <p class="error" th:errors="*{region}"></p>
+        <label>설명 <textarea th:field="*{description}" minlength="10" maxlength="2000" placeholder="상태, 사용 기간, 거래 희망 장소를 적어주세요." required></textarea></label>
+        <p class="error" th:errors="*{description}"></p>
         <label th:if="${productUpdateRequest != null}">상태
             <select name="status"><option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${productUpdateRequest.status == s}"></option></select>
         </label>

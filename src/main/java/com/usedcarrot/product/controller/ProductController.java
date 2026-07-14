@@ -59,6 +59,7 @@ public class ProductController {
                          @RequestParam(required = false) List<MultipartFile> images,
                          HttpServletRequest servletRequest, Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("formError", "입력한 상품 정보를 다시 확인해주세요.");
             return "products/form";
         }
         Product product = productService.create(currentUser, request, images, servletRequest);
@@ -91,8 +92,11 @@ public class ProductController {
     @PostMapping("/products/{id}/edit")
     public String update(@PathVariable Long id, @AuthenticationPrincipal CurrentUser currentUser,
                          @Valid @ModelAttribute ProductUpdateRequest request, BindingResult bindingResult,
-                         HttpServletRequest servletRequest) {
+                         HttpServletRequest servletRequest, Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("formError", "입력한 상품 정보를 다시 확인해주세요.");
+            model.addAttribute("product", productService.findForEdit(id, currentUser));
+            model.addAttribute("statuses", ProductStatus.values());
             return "products/form";
         }
         productService.update(id, currentUser, request, servletRequest);
