@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>신고 관리</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><h1>신고 관리</h1><p>신고는 관리자 검토 후 RESOLVED 처리된 경우에만 제재에 반영됩니다.</p><table><tr><th>ID</th><th>대상</th><th>사유</th><th>상태</th><th>상세</th><th>처리</th></tr><tr th:each="report : ${reports}"><td th:text="${report.id}"></td><td th:text="${report.targetType + ':' + report.targetId}"></td><td th:text="${report.reason}"></td><td th:text="${report.status}"></td><td th:text="${report.detail}"></td><td><form th:if="${!report.processed}" th:action="@{/admin/reports/{id}/process(id=${report.id})}" method="post"><select name="status"><option value="RESOLVED">승인</option><option value="REJECTED">반려</option></select><input name="memo" maxlength="1000"><button>처리</button></form></td></tr></table></main></body>
+</html>

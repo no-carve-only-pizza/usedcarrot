@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>관심 상품</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <section class="page-title">
+        <p class="eyebrow">Wishlist</p>
+        <h1>관심 상품</h1>
+        <p>관심 등록한 상품을 다시 확인할 수 있습니다.</p>
+    </section>
+    <section class="product-grid" th:if="${!#lists.isEmpty(favorites)}">
+        <article class="product-card" th:each="favorite : ${favorites}">
+            <a th:href="@{/products/{id}(id=${favorite.product.id})}">
+                <div class="thumb">
+                    <img th:if="${!favorite.product.images.isEmpty()}" th:src="${favorite.product.images[0].url}" alt="상품 이미지">
+                    <div class="placeholder" th:if="${favorite.product.images.isEmpty()}">이미지 준비중</div>
+                </div>
+                <div class="product-body">
+                    <h3 th:text="${favorite.product.title}"></h3>
+                    <p class="meta"><span th:text="${favorite.product.status}"></span></p>
+                </div>
+            </a>
+        </article>
+    </section>
+    <p class="empty" th:if="${#lists.isEmpty(favorites)}">관심 등록한 상품이 없습니다. <a class="link" th:href="@{/products}">상품 둘러보기</a></p>
+</main>
+</body>
+</html>

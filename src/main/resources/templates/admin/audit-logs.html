@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>감사 로그</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><h1>감사 로그</h1><table><tr><th>시간</th><th>사용자</th><th>이벤트</th><th>결과</th><th>IP</th><th>상세</th></tr><tr th:each="log : ${logs}"><td th:text="${log.createdAt}"></td><td th:text="${log.userId}"></td><td th:text="${log.eventType}"></td><td th:text="${log.result}"></td><td th:text="${log.ipAddress}"></td><td th:text="${log.detail}"></td></tr></table></main></body>
+</html>

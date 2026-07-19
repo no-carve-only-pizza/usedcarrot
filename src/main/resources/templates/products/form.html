@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>상품 폼</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <a class="back-link" th:href="@{/products}">← 상품 목록</a>
+    <section class="form-shell">
+        <div>
+            <p class="eyebrow">Sell</p>
+            <h1 th:text="${product != null} ? '상품 수정' : '상품 등록'">상품 등록</h1>
+            <p>사진은 최대 5장. 가격은 ETH(Sepolia)입니다. 판매 전 MetaMask 지갑을 연결하세요.</p>
+        </div>
+        <form class="product-form"
+              th:object="${productForm}"
+              th:action="${product != null} ? @{/products/{id}/edit(id=${product.id})} : @{/products}"
+              method="post" enctype="multipart/form-data">
+            <p class="error" th:if="${formError}" th:text="${formError}"></p>
+            <label>상품명 <input th:field="*{title}" minlength="2" maxlength="80" placeholder="예: 거의 새 아이패드 미니" required></label>
+            <p class="error" th:errors="*{title}"></p>
+            <div class="form-row">
+                <label>가격 (ETH) <input th:field="*{priceEth}" type="number" min="0.000001" max="5" step="0.000001" required></label>
+                <label>카테고리
+                    <select th:field="*{category}" required>
+                        <option value="">카테고리 선택</option>
+                        <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+                    </select>
+                </label>
+            </div>
+            <p class="error" th:errors="*{priceEth}"></p>
+            <p class="error" th:errors="*{category}"></p>
+            <label>지역 <input th:field="*{region}" minlength="2" maxlength="50" placeholder="서울 강남구" required></label>
+            <p class="error" th:errors="*{region}"></p>
+            <label>설명 <textarea th:field="*{description}" minlength="10" maxlength="2000" placeholder="상태, 사용 기간, 거래 희망 장소를 적어주세요." required></textarea></label>
+            <p class="error" th:errors="*{description}"></p>
+            <label th:if="${product != null}">상태
+                <select th:field="*{status}">
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                </select>
+            </label>
+            <div th:if="${product != null and !product.images.isEmpty()}" class="image-strip">
+                <img th:each="image : ${product.images}" th:src="${image.url}" alt="등록된 이미지">
+            </div>
+            <label class="upload-box" th:if="${product == null}">이미지 업로드
+            <input type="file" name="images" multiple accept="image/jpeg,image/png">
+            <span>클릭해서 사진을 선택하세요. JPG/PNG, 최대 5장.</span>
+            </label>
+            <label class="upload-box" th:if="${product != null}">이미지 추가
+                <input type="file" name="images" multiple accept="image/jpeg,image/png">
+                <span th:text="|현재 ${product.images.size()}장 / 남은 슬롯 ${5 - product.images.size()}장|">이미지 추가</span>
+            </label>
+            <button type="submit">저장하기</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

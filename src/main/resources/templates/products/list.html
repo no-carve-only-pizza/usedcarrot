@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title th:text="${mine} ? '내 상품' : '상품 목록'">상품 목록</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <p class="error notice" th:if="${error}" th:text="${error}"></p>
+    <section class="page-title">
+        <p class="eyebrow" th:text="${mine} ? 'My listings' : 'Market'">Market</p>
+        <h1 th:text="${mine} ? '내가 등록한 상품' : '상품 목록'">상품 목록</h1>
+        <p th:if="${!mine}">키워드, 카테고리, 거래 상태로 상품을 찾아보세요.</p>
+        <p th:if="${mine}">등록한 상품을 확인하고 수정·삭제할 수 있습니다.</p>
+    </section>
+
+    <form th:if="${!mine}" th:action="@{/products}" method="get" class="filters">
+        <input name="keyword" maxlength="50" th:value="${condition != null ? condition.keyword : ''}" placeholder="검색어">
+        <select name="category">
+            <option value="">전체 카테고리</option>
+            <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"
+                    th:selected="${condition != null and condition.category == c}"></option>
+        </select>
+        <select name="status">
+            <option value="">판매중/예약중</option>
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                    th:selected="${condition != null and condition.status == s}"></option>
+        </select>
+        <input name="region" maxlength="50" th:value="${condition != null ? condition.region : ''}" placeholder="지역">
+        <button type="submit">검색</button>
+    </form>
+
+    <section class="product-grid" th:if="${page != null and !page.content.isEmpty()}">
+        <article class="product-card" th:each="product : ${page.content}">
+            <a th:href="@{/products/{id}(id=${product.id})}">
+                <div class="thumb">
+                    <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 이미지">
+                    <div class="placeholder" th:if="${product.images.isEmpty()}">이미지 준비중</div>
+                </div>
+                <div class="product-body">
+                    <h3 th:text="${product.title}"></h3>
+                    <p class="price"><span th:text="${@eth.format(product.price)}"></span> ETH</p>
+                    <p class="meta"><span th:text="${product.region}"></span><span th:text="${product.status}"></span></p>
+                </div>
+            </a>
+        </article>
+    </section>
+
+    <section class="product-grid" th:if="${products != null and !#lists.isEmpty(products)}">
+        <article class="product-card" th:each="product : ${products}">
+            <a th:href="@{/products/{id}(id=${product.id})}">
+                <div class="thumb">
+                    <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 이미지">
+                    <div class="placeholder" th:if="${product.images.isEmpty()}">이미지 준비중</div>
+                </div>
+                <div class="product-body">
+                    <h3 th:text="${product.title}"></h3>
+                    <p class="price"><span th:text="${@eth.format(product.price)}"></span> ETH</p>
+                    <p class="meta"><span th:text="${product.region}"></span><span th:text="${product.status}"></span></p>
+                </div>
+            </a>
+            <div class="actions card-actions" th:if="${mine}">
+                <a class="button ghost" th:if="${product.status.name() == 'ON_SALE' or product.status.name() == 'RESERVED'}"
+                   th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
+                <form th:if="${product.status.name() != 'DELETED'}" th:action="@{/products/{id}/delete(id=${product.id})}" method="post"
+                      onsubmit="return confirm('이 상품을 삭제할까요?')">
+                    <button class="danger" type="submit">삭제</button>
+                </form>
+            </div>
+        </article>
+    </section>
+
+    <p class="empty" th:if="${page != null and page.content.isEmpty()}">검색 조건에 맞는 상품이 없습니다.</p>
+    <p class="empty" th:if="${mine and (products == null or #lists.isEmpty(products))}">아직 등록한 상품이 없습니다. <a class="link" th:href="@{/products/new}">첫 상품 등록</a></p>
+
+    <nav class="pagination" th:if="${page != null and page.totalPages > 1}">
+        <a th:if="${page.hasPrevious()}" class="button ghost"
+           th:href="@{/products(page=${page.number - 1}, size=${page.size}, keyword=${condition.keyword}, category=${condition.category}, status=${condition.status}, region=${condition.region})}">이전</a>
+        <span th:text="|${page.number + 1} / ${page.totalPages}|"></span>
+        <a th:if="${page.hasNext()}" class="button ghost"
+           th:href="@{/products(page=${page.number + 1}, size=${page.size}, keyword=${condition.keyword}, category=${condition.category}, status=${condition.status}, region=${condition.region})}">다음</a>
+    </nav>
+</main>
+</body>
+</html>

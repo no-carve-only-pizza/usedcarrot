@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:text="${room.product.title} + ' · 채팅'">채팅방</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/chat.js}" defer></script>
+</head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container chat-page">
+    <a class="back-link" th:href="@{/chat}">← 채팅 목록</a>
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <p class="error notice" th:if="${error}" th:text="${error}"></p>
+
+    <section class="chat-shell"
+             id="chatRoom"
+             th:attr="data-room-id=${room.id},
+                      data-me-id=${currentUserId},
+                      data-can-send=${canSend},
+                      data-last-id=${messages.isEmpty() ? 0 : messages[messages.size()-1].id}">
+        <header class="chat-head">
+            <div>
+                <h1 th:text="${room.product.title}">상품</h1>
+                <p class="meta">
+                    <span th:text="${room.product.status}"></span> ·
+                    <span th:text="${@eth.format(room.product.price)}"></span> ETH ·
+                    <span th:text="${room.seller.nickname}"></span> ↔
+                    <span th:text="${room.buyer.nickname}"></span>
+                </p>
+            </div>
+            <a class="button secondary" th:href="@{/products/{id}(id=${room.product.id})}">상품 보기</a>
+        </header>
+
+        <div class="chat-feed" id="chatFeed">
+            <p class="chat-empty" th:if="${#lists.isEmpty(messages)}">아직 메시지가 없습니다. 인사를 남겨보세요.</p>
+            <div th:each="msg : ${messages}"
+                 class="chat-row"
+                 th:classappend="${msg.sender.id == currentUserId} ? ' mine' : ' theirs'"
+                 th:id="|msg-${msg.id}|">
+                <div class="chat-bubble">
+                    <div class="chat-name" th:if="${msg.sender.id != currentUserId}" th:text="${msg.sender.nickname}"></div>
+                    <div class="chat-text" th:text="${msg.content}"></div>
+                    <div class="chat-time" th:text="${#temporals.format(msg.createdAt, 'HH:mm')}"></div>
+                </div>
+            </div>
+        </div>
+
+        <form th:if="${canSend}" id="chatForm" class="chat-composer" th:action="@{/chat/{id}/messages(id=${room.id})}" method="post">
+            <textarea id="chatInput" name="content" maxlength="1000" required placeholder="메시지를 입력하세요" rows="2"></textarea>
+            <button type="submit">전송</button>
+        </form>
+        <p class="empty chat-closed" th:if="${!canSend}">거래가 종료되어 메시지를 보낼 수 없습니다. 기존 대화는 열람만 가능합니다.</p>
+
+        <p class="chat-pay" th:if="${canPurchase}">
+            <a class="button" th:href="@{/products/{id}(id=${room.product.id})}">상품 상세에서 MetaMask 결제</a>
+        </p>
+    </section>
+</main>
+</body>
+</html>

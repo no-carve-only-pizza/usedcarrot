@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${product.title}">상품</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/crypto.js}" defer></script>
+</head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <p class="error notice" th:if="${error}" th:text="${error}"></p>
+    <a class="back-link" th:href="@{/products}">상품 목록</a>
+    <section class="detail-layout">
+        <div class="detail-media">
+            <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 대표 이미지">
+            <div class="placeholder large" th:if="${product.images.isEmpty()}">등록된 이미지가 없습니다</div>
+            <div class="image-strip" th:if="${product.images.size() > 1}">
+                <img th:each="image : ${product.images}" th:src="${image.url}" alt="상품 이미지">
+            </div>
+        </div>
+        <article class="detail-panel">
+            <p class="badge" th:text="${product.status}"></p>
+            <h1 th:text="${product.title}"></h1>
+            <p class="detail-price"><strong th:text="${@eth.format(product.price)}"></strong> ETH
+                <span class="meta" th:text="${chain.chainName}"></span>
+            </p>
+            <p class="description" th:text="${product.description}"></p>
+            <dl class="info-grid">
+                <div><dt>카테고리</dt><dd th:text="${product.category}"></dd></div>
+                <div><dt>지역</dt><dd th:text="${product.region}"></dd></div>
+                <div><dt>판매자</dt><dd th:text="${product.seller.nickname}"></dd></div>
+                <div><dt>판매자 지갑</dt><dd th:text="${sellerWallet != null ? sellerWallet : '미연결'}"></dd></div>
+            </dl>
+            <div class="actions" sec:authorize="isAuthenticated()">
+                <form th:if="${canFavorite}" th:action="@{/products/{id}/favorite(id=${product.id})}" method="post">
+                    <button class="secondary" type="submit" th:text="${favorited} ? '관심 해제' : '관심 등록'">관심</button>
+                </form>
+                <form th:if="${canChat}" th:action="@{/chat}" method="post">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <button class="secondary" type="submit">문의하기</button>
+                </form>
+                <button th:if="${canPurchase}" type="button" id="payBtn"
+                        th:attr="data-product-id=${product.id},data-price-wei=${priceWei},data-seller=${sellerWallet},data-buyer=${buyerWallet},data-chain-id=${chain.chainId},data-payment-data=${paymentData}">
+                    MetaMask로 ETH 결제
+                </button>
+                <form id="onchainPurchaseForm" th:action="@{/wallet/onchain-purchases}" method="post" class="inline" hidden>
+                    <input type="hidden" name="productId">
+                    <input type="hidden" name="txHash">
+                </form>
+                <a th:if="${canReportProduct}" class="button ghost" th:href="@{/reports/new(targetType='PRODUCT',targetId=${product.id})}">상품 신고</a>
+                <a th:if="${canReportSeller}" class="button ghost" th:href="@{/reports/new(targetType='USER',targetId=${product.seller.id})}">판매자 신고</a>
+                <a th:if="${canEdit}" class="button ghost" th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
+                <form th:if="${canDelete}" th:action="@{/products/{id}/delete(id=${product.id})}" method="post" onsubmit="return confirm('이 상품을 삭제할까요?')">
+                    <button class="danger" type="submit">삭제</button>
+                </form>
+            </div>
+            <p class="empty" th:if="${purchaseBlockedReason}" th:text="${purchaseBlockedReason}"></p>
+            <p class="empty" th:if="${product.status.name() == 'SOLD'}">온체인 결제로 거래가 완료된 상품입니다.</p>
+            <p class="empty" sec:authorize="isAnonymous()">관심·문의·구매는 로그인 후 이용할 수 있습니다.</p>
+        </article>
+    </section>
+</main>
+</body>
+</html>

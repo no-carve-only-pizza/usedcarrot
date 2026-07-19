@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>채팅</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <section class="page-title">
+        <p class="eyebrow">Messages</p>
+        <h1>채팅</h1>
+        <p>상품별 1:1 문의 목록입니다.</p>
+    </section>
+    <div class="chat-list">
+        <a class="chat-list-item" th:each="room : ${rooms}" th:href="@{/chat/{id}(id=${room.id})}">
+            <div class="chat-list-title" th:text="${room.product.title}">상품</div>
+            <div class="chat-list-meta">
+                <span th:text="${room.product.status}"></span>
+                ·
+                <span th:text="${room.seller.nickname}"></span>
+                /
+                <span th:text="${room.buyer.nickname}"></span>
+            </div>
+        </a>
+    </div>
+    <p class="empty" th:if="${#lists.isEmpty(rooms)}">참여 중인 채팅이 없습니다. 상품 상세에서 문의를 시작해보세요.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: siteHead}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main>
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <section class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">동네 중고거래</p>
+            <h1>UsedCarrot</h1>
+            <p>MetaMask로 Sepolia ETH를 주고받으며 중고거래합니다.</p>
+            <div class="hero-actions">
+                <a class="button" th:href="@{/products}">상품 둘러보기</a>
+                <a class="button secondary" th:href="@{/products/new}">상품 등록</a>
+            </div>
+        </div>
+    </section>
+    <section class="container section-head">
+        <div>
+            <p class="eyebrow">Fresh items</p>
+            <h2>방금 올라온 상품</h2>
+        </div>
+        <a class="link" th:href="@{/products}">전체 보기</a>
+    </section>
+    <section class="container product-grid">
+        <article class="product-card" th:each="product : ${products}">
+            <a th:href="@{/products/{id}(id=${product.id})}">
+                <div class="thumb">
+                    <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].url}" alt="상품 이미지">
+                    <div class="placeholder" th:if="${product.images.isEmpty()}">이미지 준비중</div>
+                </div>
+                <div class="product-body">
+                    <h3 th:text="${product.title}">상품명</h3>
+                    <p class="price"><strong th:text="${@eth.format(product.price)}">0</strong> ETH</p>
+                    <p class="meta"><span th:text="${product.region}">지역</span><span th:text="${product.status}">상태</span></p>
+                </div>
+            </a>
+        </article>
+    </section>
+    <p class="container empty" th:if="${#lists.isEmpty(products)}">아직 등록된 상품이 없습니다. 첫 상품을 올려보세요.</p>
+</main>
+</body>
+</html>

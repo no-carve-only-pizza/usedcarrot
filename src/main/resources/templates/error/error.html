@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>오류</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container"><h1>오류</h1><p th:text="${message}">요청 처리 중 오류가 발생했습니다.</p><p th:text="${code}"></p><p><a th:href="@{/}">홈으로</a></p></main></body>
+</html>

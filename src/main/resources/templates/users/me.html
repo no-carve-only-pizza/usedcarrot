@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>마이페이지</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/crypto.js}" defer></script>
+</head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <section class="page-title">
+        <p class="eyebrow">Account</p>
+        <h1>마이페이지</h1>
+        <p>프로필과 Sepolia MetaMask 지갑을 관리합니다.</p>
+    </section>
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <p class="error notice" th:if="${error}" th:text="${error}"></p>
+
+    <nav class="quick-links">
+        <a class="button secondary" th:href="@{/products/me}">내 상품</a>
+        <a class="button secondary" th:href="@{/favorites}">관심 상품</a>
+        <a class="button secondary" th:href="@{/chat}">채팅</a>
+        <a class="button secondary" th:href="@{/wallet}">결제 내역</a>
+        <a class="button secondary" th:href="@{/products/new}">상품 등록</a>
+    </nav>
+
+    <dl class="info-grid">
+        <div><dt>이메일</dt><dd th:text="${user.email}"></dd></div>
+        <div><dt>상태</dt><dd th:text="${user.status}"></dd></div>
+        <div><dt>체인</dt><dd th:text="${chain.chainName + ' (' + chain.chainId + ')'}"></dd></div>
+        <div>
+            <dt>지갑</dt>
+            <dd class="wallet-addr" th:text="${user.walletAddress != null ? user.walletAddress : '미연결'}"></dd>
+        </div>
+    </dl>
+
+    <section class="form-shell single">
+        <div>
+            <h2>MetaMask 지갑 연결</h2>
+            <p>판매·구매 전에 한 번만 연결하면 됩니다. Chrome/Brave + MetaMask 확장 프로그램을 쓰세요.</p>
+            <ol class="steps">
+                <li>MetaMask를 설치하고 <strong>Sepolia</strong> 네트워크로 맞춥니다.</li>
+                <li>아래 버튼을 누르면 MetaMask 권한 창이 뜹니다. <strong>Account 2도 체크</strong>한 뒤 연결하세요.</li>
+                <li>계정이 여러 개면 사이트에서 연결할 주소를 한 번 더 고릅니다.</li>
+                <li>서명 요청을 승인합니다. (ETH는 안 나가고 주소 소유 증명만 합니다.)</li>
+                <li>위에 지갑 주소가 보이면 완료 → 상품 등록/결제.</li>
+            </ol>
+        </div>
+        <div>
+            <button type="button" id="linkWalletBtn"
+                    th:attr="data-chain-id=${chain.chainId}"
+                    th:text="${user.walletAddress != null} ? '지갑 다시 연결' : 'MetaMask 연결하기'">
+                MetaMask 연결하기
+            </button>
+            <p class="empty" style="margin-top:10px" th:if="${user.walletAddress == null}">아직 연결 안 됨 → 먼저 이 버튼을 누르세요.</p>
+            <form id="walletLinkForm" th:action="@{/users/me/wallet}" method="post" hidden>
+                <input type="hidden" name="address" id="walletLinkAddress">
+                <input type="hidden" name="message" id="walletLinkMessage" th:value="${walletLinkMessage}">
+                <input type="hidden" name="signature" id="walletLinkSignature">
+            </form>
+        </div>
+    </section>
+
+    <section class="form-shell single">
+        <div>
+            <h2>프로필 수정</h2>
+        </div>
+        <form th:action="@{/users/me/profile}" th:object="${profileUpdateRequest}" method="post">
+            <label>닉네임 <input th:field="*{nickname}" required maxlength="20"></label>
+            <p class="error" th:errors="*{nickname}"></p>
+            <label>지역 <input th:field="*{region}" required maxlength="50"></label>
+            <p class="error" th:errors="*{region}"></p>
+            <label>소개글 <textarea th:field="*{bio}" maxlength="200"></textarea></label>
+            <p class="error" th:errors="*{bio}"></p>
+            <button type="submit">저장</button>
+        </form>
+    </section>
+
+    <section class="form-shell single">
+        <div>
+            <h2>비밀번호 변경</h2>
+        </div>
+        <form th:action="@{/users/me/password}" th:object="${passwordChangeRequest}" method="post">
+            <label>현재 비밀번호 <input th:field="*{currentPassword}" type="password" required></label>
+            <label>새 비밀번호 <input th:field="*{newPassword}" type="password" required minlength="8"></label>
+            <label>새 비밀번호 확인 <input th:field="*{newPasswordConfirm}" type="password" required minlength="8"></label>
+            <p class="error" th:errors="*{newPasswordConfirm}"></p>
+            <button type="submit">변경</button>
+        </form>
+    </section>
+
+    <section class="form-shell single danger-zone">
+        <div>
+            <h2>계정 탈퇴</h2>
+            <p>확인 문구에 <strong>탈퇴합니다</strong>를 입력하세요. 지갑 연결도 해제됩니다.</p>
+        </div>
+        <form th:action="@{/users/me/withdraw}" th:object="${accountWithdrawRequest}" method="post"
+              onsubmit="return confirm('정말 탈퇴하시겠습니까?')">
+            <label>현재 비밀번호 <input th:field="*{currentPassword}" type="password" required></label>
+            <label>확인 문구 <input th:field="*{confirmText}" placeholder="탈퇴합니다" required></label>
+            <button class="danger" type="submit">계정 탈퇴</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

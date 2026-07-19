@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>결제 내역</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <section class="page-title">
+        <p class="eyebrow">Payments</p>
+        <h1>결제 내역</h1>
+        <p th:text="|ETH는 MetaMask(${chain.chainName})에 있고, 여기는 서버가 확인한 온체인 결제 기록입니다.|">안내</p>
+    </section>
+    <p class="notice" th:if="${message}" th:text="${message}"></p>
+    <p class="error notice" th:if="${error}" th:text="${error}"></p>
+    <dl class="info-grid">
+        <div><dt>연결 지갑</dt><dd class="wallet-addr" th:text="${user.walletAddress != null ? user.walletAddress : '미연결'}"></dd></div>
+        <div><dt>체인</dt><dd th:text="${chain.chainName + ' / ' + chain.chainId}"></dd></div>
+    </dl>
+    <div th:replace="~{wallets/transactions :: txList}"></div>
+</main>
+</body>
+</html>

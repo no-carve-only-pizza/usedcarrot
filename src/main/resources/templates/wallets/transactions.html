@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>거래 내역</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<header th:replace="~{layout :: siteHeader}"></header>
+<main class="container">
+    <a class="back-link" th:href="@{/wallet}">결제 내역으로</a>
+    <section th:fragment="txList">
+        <h2>온체인 결제 기록</h2>
+        <table th:if="${!#lists.isEmpty(transactions)}">
+            <tr><th>유형</th><th>상태</th><th>금액(ETH)</th><th>Tx</th><th>상품</th></tr>
+            <tr th:each="tx : ${transactions}">
+                <td th:text="${tx.type}"></td>
+                <td th:text="${tx.status}"></td>
+                <td th:text="${@eth.format(tx.amount)}"></td>
+                <td>
+                    <a th:if="${chain != null}" th:href="${chain.explorerTxUrl + tx.transactionHash}" target="_blank" rel="noopener"
+                       th:text="${#strings.substring(tx.transactionHash,0,10)} + '…'">tx</a>
+                    <span th:if="${chain == null}" th:text="${tx.transactionHash}"></span>
+                </td>
+                <td th:text="${tx.product != null ? tx.product.title : '-'}"></td>
+            </tr>
+        </table>
+        <p class="empty" th:if="${#lists.isEmpty(transactions)}">온체인 결제 기록이 없습니다.</p>
+    </section>
+</main>
+</body>
+</html>
