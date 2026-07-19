@@ -1,6 +1,6 @@
 # Security hardening (2026-07-19)
 
-제출용 `usedcarrot-web3` 보안 점검 후 조치.
+UsedCarrot(온체인 제출본) 보안 점검 후 조치.
 
 | 이슈 | 조치 |
 | --- | --- |
