@@ -1,3 +1,5 @@
+> **참고:** 이 저장소는 Sepolia ETH + MetaMask **온체인 제출본**이다. 결제·송금 서술은 [`WEB3_OVERRIDE.md`](WEB3_OVERRIDE.md)와 [`PROJECT_REPORT.md`](PROJECT_REPORT.md)를 따른다. 아래 본문에 남아 있는 CarrotCoin/모의지갑 문구는 초안 이력이다.
+
 # UsedCarrot 최종 보고서 작성 가이드
 
 이 문서는 최종 PDF 보고서를 작성하기 위한 목차와 작성 기준이다. 실제 개발이 진행되면 각 항목에 구현 화면, 코드 일부, 테스트 결과, GitHub 링크를 채워 넣는다.

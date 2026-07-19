@@ -40,9 +40,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(properties = {
-    "spring.datasource.url=jdbc:h2:mem:usedcarrot-web3-test;MODE=MySQL;DB_CLOSE_DELAY=-1",
+    "spring.datasource.url=jdbc:h2:mem:usedcarrot-test;MODE=MySQL;DB_CLOSE_DELAY=-1",
     "spring.jpa.hibernate.ddl-auto=create-drop",
-    "usedcarrot.upload-dir=./build/test-uploads-web3",
+    "usedcarrot.upload-dir=./build/test-uploads",
     "server.port=0"
 })
 @AutoConfigureMockMvc

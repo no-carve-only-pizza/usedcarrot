@@ -1,3 +1,5 @@
+> **참고:** 이 저장소는 Sepolia ETH + MetaMask **온체인 제출본**이다. 결제·송금 서술은 [`WEB3_OVERRIDE.md`](WEB3_OVERRIDE.md)와 [`PROJECT_REPORT.md`](PROJECT_REPORT.md)를 따른다. 아래 본문에 남아 있는 CarrotCoin/모의지갑 문구는 초안 이력이다.
+
 # UsedCarrot 시스템 설계
 
 ## 1. 설계 개요
