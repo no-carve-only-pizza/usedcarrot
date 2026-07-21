@@ -31,20 +31,35 @@ Java 21, Spring Boot 3, Thymeleaf, Spring Security, JPA, H2, Web3j
 
 ## 실행
 
-Java 21, MetaMask, Sepolia ETH(faucet) 필요.
+### 사전 요구
+
+| 항목 | 용도 |
+| --- | --- |
+| Java 21 | 빌드·실행 |
+| 네트워크 | 첫 `./gradlew` 시 의존성 다운로드, Sepolia RPC 검증 |
+| MetaMask + Sepolia ETH | 지갑 연결·온체인 결제 데모 (조회·로그인·채팅만이면 불필요) |
+
+Sepolia faucet 예: https://sepoliafaucet.com/
+
+### 클론 후 실행
 
 ```bash
+git clone https://github.com/no-carve-only-pizza/usedcarrot.git
+cd usedcarrot
+
 export USEDCARROT_ADMIN_EMAIL='admin@example.com'
 export USEDCARROT_ADMIN_PASSWORD='ChangeThisAdmin1!'
+
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
 - 앱: http://localhost:8081  
-- 선택 RPC: `USEDCARROT_ETH_RPC_URL` (기본 public Sepolia RPC)
+- 선택 RPC: `USEDCARROT_ETH_RPC_URL` (기본 public Sepolia RPC)  
+- 첫 실행은 Gradle 의존성 때문에 시간이 걸릴 수 있음
 
-## 데모 계정 (`local`)
+### 데모 계정 (`local`)
 
-첫 실행 시 생성됩니다. **구매·등록 전에 MetaMask 연결**이 필요합니다.
+첫 실행 시 생성됩니다. **상품 등록·구매 전에** 마이페이지에서 MetaMask 지갑 연결이 필요합니다.
 
 | 계정 | 이메일 | 비밀번호 |
 | --- | --- | --- |
@@ -52,8 +67,6 @@ export USEDCARROT_ADMIN_PASSWORD='ChangeThisAdmin1!'
 | 판매자2 | `seller2@demo.local` | `DemoUser1234!` |
 | 구매자 | `buyer@demo.local` | `DemoUser1234!` |
 | 관리자 | 환경변수 `USEDCARROT_ADMIN_EMAIL` | 환경변수 `USEDCARROT_ADMIN_PASSWORD` |
-
-Sepolia faucet 예: https://sepoliafaucet.com/
 
 ## 테스트
 
