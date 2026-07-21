@@ -4,3 +4,7 @@ data/
 uploads/
 *.log
 .DS_Store
+.venv-pdf/
+output/
+tmp/
+.venv-pdf/

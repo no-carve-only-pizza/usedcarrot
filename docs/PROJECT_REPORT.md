@@ -136,15 +136,15 @@ flowchart LR
 
 ### 4.1 홈·인증
 
-![홈](screenshots/01-home.png)
+![홈](./screenshots/01-home.png)
 
-![로그인](screenshots/02-login.png)
+![로그인](./screenshots/02-login.png)
 
-![회원가입](screenshots/03-register.png)
+![회원가입](./screenshots/03-register.png)
 
 로그인 후 내비에 내 상품·채팅·결제·마이가 생긴다.
 
-![로그인 후 홈](screenshots/06-home-logged-in.png)
+![로그인 후 홈](./screenshots/06-home-logged-in.png)
 
 ### 4.2 사용자·지갑 연결
 
@@ -153,36 +153,36 @@ flowchart LR
 
 직접 캡처 — 이미 연결된 지갑 재사용 시도 시 오류:
 
-![지갑 중복 연결 거부](screenshots/manual/m01-wallet-already-linked-error.png)
+![지갑 중복 연결 거부](./screenshots/manual/m01-wallet-already-linked-error.png)
 
 판매자·구매자 각각 지갑을 연결한 상태 (좌: seller, 우: buyer, Sepolia):
 
-![판매자·구매자 지갑 연결](screenshots/manual/m02-seller-buyer-wallets-sidebyside.png)
+![판매자·구매자 지갑 연결](./screenshots/manual/m02-seller-buyer-wallets-sidebyside.png)
 
 자동 캡처 — 마이페이지 전체:
 
-![마이페이지](screenshots/10-mypage.png)
+![마이페이지](./screenshots/10-mypage.png)
 
 ### 4.3 상품
 
 카테고리 화이트리스트, ETH→wei, 이미지 JPG/PNG만 허용.  
 판매자 상태 변경은 `ON_SALE`/`RESERVED`만, `SOLD`는 온체인 확정 시에만.
 
-![상품 목록](screenshots/04-products-list.png)
+![상품 목록](./screenshots/04-products-list.png)
 
-![상품 상세](screenshots/05-product-detail.png)
+![상품 상세](./screenshots/05-product-detail.png)
 
-![상품 등록](screenshots/14-product-new.png)
+![상품 등록](./screenshots/14-product-new.png)
 
-![내 상품](screenshots/15-my-products.png)
+![내 상품](./screenshots/15-my-products.png)
 
 직접 캡처 — 예약 상품 + 판매자 지갑 주소 + **MetaMask로 ETH 결제** 버튼:
 
-![나이키 상품 MetaMask 결제 버튼](screenshots/manual/m04-product-metamask-pay-button.png)
+![나이키 상품 MetaMask 결제 버튼](./screenshots/manual/m04-product-metamask-pay-button.png)
 
 구매자 상세 (관심·문의·신고):
 
-![구매자 상세](screenshots/07-product-detail-buyer.png)
+![구매자 상세](./screenshots/07-product-detail-buyer.png)
 
 ### 4.4 채팅
 
@@ -190,30 +190,30 @@ flowchart LR
 
 직접 캡처 — 일반 창·시크릿 창으로 구매자·판매자 동시 대화 (`RESERVED`, 0.0008 ETH):
 
-![1:1 채팅 양측](screenshots/manual/m03-chat-two-sessions.png)
+![1:1 채팅 양측](./screenshots/manual/m03-chat-two-sessions.png)
 
-![채팅방](screenshots/08-chat-room.png)
+![채팅방](./screenshots/08-chat-room.png)
 
-![채팅 목록](screenshots/09-chat-list.png)
+![채팅 목록](./screenshots/09-chat-list.png)
 
 ### 4.5 MetaMask 결제 (직접 캡처)
 
 상품 상세에서 결제 버튼을 누르면 MetaMask가 연결/전송을 요청한다.  
 요청자 표시는 `localhost:8081`이다.
 
-![MetaMask 연결 요청](screenshots/manual/m05-metamask-connect-prompt.png)
+![MetaMask 연결 요청](./screenshots/manual/m05-metamask-connect-prompt.png)
 
-![MetaMask 연결 팝업](screenshots/manual/m06-metamask-tx.png)
+![MetaMask 연결 팝업](./screenshots/manual/m06-metamask-tx.png)
 
-![SepoliaETH 0.0008 전송 확인](screenshots/manual/m07-metamask-confirm.png)
+![SepoliaETH 0.0008 전송 확인](./screenshots/manual/m07-metamask-confirm.png)
 
-![전송 진행](screenshots/manual/m08-after-pay.png)
+![전송 진행](./screenshots/manual/m08-after-pay.png)
 
 서버는 이후 `txHash`를 받아 RPC로 검증한다. 단위 테스트는 공개 RPC 의존을 피하고, **지갑 미연결 등록 거부·알 수 없는 tx 거부**를 검증한다.
 
 결제 내역 화면:
 
-![결제 내역](screenshots/11-wallet.png)
+![결제 내역](./screenshots/11-wallet.png)
 
 ### 4.6 신고
 
@@ -224,23 +224,23 @@ flowchart LR
 | 상품 | 3회 | `HIDDEN` |
 | 사용자 | 5회 / 10회 | `LIMITED` / `SUSPENDED` |
 
-![신고 폼](screenshots/13-report-form.png)
+![신고 폼](./screenshots/13-report-form.png)
 
-![관심](screenshots/12-favorites.png)
+![관심](./screenshots/12-favorites.png)
 
 ### 4.7 관리자
 
-![관리자 대시보드](screenshots/17-admin-dashboard.png)
+![관리자 대시보드](./screenshots/17-admin-dashboard.png)
 
-![사용자](screenshots/18-admin-users.png)
+![사용자](./screenshots/18-admin-users.png)
 
-![상품](screenshots/19-admin-products.png)
+![상품](./screenshots/19-admin-products.png)
 
-![신고](screenshots/20-admin-reports.png)
+![신고](./screenshots/20-admin-reports.png)
 
-![지갑 거래](screenshots/21-admin-wallet-tx.png)
+![지갑 거래](./screenshots/21-admin-wallet-tx.png)
 
-![감사 로그](screenshots/22-admin-audit-logs.png)
+![감사 로그](./screenshots/22-admin-audit-logs.png)
 
 ---
 
