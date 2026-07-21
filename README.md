@@ -1,6 +1,6 @@
 # UsedCarrot
 
-WHS 시큐어코딩 과제용 **중고거래 플랫폼**입니다.  
+**중고거래 플랫폼**입니다.  
 결제는 DB 포인트가 아니라 **Ethereum Sepolia + MetaMask** 온체인 전송이며, 서버는 ETH를 보관하지 않고 RPC로 영수증을 검증한 뒤 상품을 `SOLD` 처리합니다.
 
 - GitHub: https://github.com/no-carve-only-pizza/usedcarrot  
